@@ -1,0 +1,428 @@
+openapi: 3.0.0
+info:
+  title: grandma recipes site
+  description: this is a api for recipes site
+  contact:
+    email: lior121992@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/samuelbenichou/Samuel_Lior_Recipes_site/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: https://app.swaggerhub.com/apis/samuelbenichou/Samuel_Lior_Recipes_site/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: recipes
+  description: Everything about recipes
+- name: users
+  description: all operations about users
+- name: User recipe
+  description: Recipe of current user
+paths:
+  /user/login:
+    get:
+      tags:
+      - user
+      summary: Login
+      description: Check if user login is valid
+      operationId: loginUser
+      parameters:
+      - name: username
+        in: query
+        description: UserName
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: passsword
+        in: query
+        description: User's password
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Valid login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirstName'
+        "400":
+          description: Invalid parameters
+  /user/register:
+    post:
+      tags:
+      - user
+      summary: New User Registration
+      description: User Registration Form
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "200":
+          description: New User Created
+        "400":
+          description: Invalid Parameters
+        "409":
+          description: UserName already exists
+  /recipes/{recipeID}:
+    get:
+      tags:
+      - recipes
+      summary: Get all recipes infos
+      description: Return all recipes infos
+      parameters:
+      - name: recipeID
+        in: path
+        description: Recipe ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/RecipeId'
+      - name: username
+        in: query
+        description: The name of the user
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        "200":
+          description: Infos about recipe
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeReview'
+        "400":
+          description: Invalid recipeID
+  /recipes/randomRecipes:
+    get:
+      tags:
+      - recipes
+      summary: Random Recipes
+      description: return 3 random recipes
+      responses:
+        "200":
+          description: info on 3 recipes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfRecipes'
+  /User recipe/LastWatched:
+    get:
+      tags:
+      - User recipe
+      summary: Last Recipes the user watched
+      description: Get the last 3  recipes the user watched
+      parameters:
+      - name: username
+        in: query
+        description: The user name for the recipes
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/username'
+      responses:
+        "200":
+          description: info on 3 recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArrayOfRecipes'
+  /recipes/{RecipeId}:
+    get:
+      tags:
+      - recipes
+      summary: Get recipe information
+      description: return all information about the recipe
+      parameters:
+      - name: RecipeId
+        in: path
+        description: Requested recipe ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/RecipeId'
+      responses:
+        "200":
+          description: Information of the recipe
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullRecipe'
+  /recipes/searchRecipes:
+    post:
+      tags:
+      - recipes
+      summary: Search Recipe
+      description: Create search object and wait to respond with returned items. You
+        can add filter by cuisine, diet or intolerance
+      parameters:
+      - name: recipeOrDishName
+        in: query
+        description: Filter by dish's name
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: cuisineFilter
+        in: query
+        description: Filter by cuisine
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: dietFilter
+        in: query
+        description: Filter by diet
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: intoleranceFilter
+        in: query
+        description: Filter by intolerance
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: numberOfRecipes
+        in: query
+        description: the number of recipes
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 5
+          enum:
+          - 5
+          - 10
+          - 15
+      responses:
+        "200":
+          description: Successful search information about recipe
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeReview'
+  /User recipe/create:
+    post:
+      tags:
+      - User recipe
+      summary: Add new recipe to user data
+      description: Create a new recipe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserRecipe'
+      responses:
+        "200":
+          description: added new recipe
+  /user recipe/getMyfavourite:
+    get:
+      tags:
+      - user recipe
+      summary: My Favourite Recipes
+      description: Get all the user's prefered recipes
+      parameters:
+      - name: username
+        in: query
+        description: userName
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Find Favorite recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfRecipes'
+  /user recipe/getMyRecipes:
+    get:
+      tags:
+      - user recipe
+      summary: User's recipes
+      description: Get all the recipes of the user
+      operationId: getMyRecipes
+      parameters:
+      - name: username
+        in: query
+        description: user name
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfRecipes'
+  /user recipe/getMyFamilyRecipe:
+    get:
+      tags:
+      - user recipe
+      summary: User's recipes
+      description: Get all the recipes of the user's family
+      operationId: addFamielyRecipe
+      parameters:
+      - name: recipeID
+        in: query
+        description: RecipeID
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+components:
+  schemas:
+    FirstName:
+      type: string
+      description: First Name of the user
+      example: Samuel
+    username:
+      type: string
+      description: Username
+      example: sam11
+    User:
+      type: object
+      properties:
+        username:
+          $ref: '#/components/schemas/username'
+        password:
+          type: string
+          description: Password
+          example: s@m11
+        FirstName:
+          $ref: '#/components/schemas/FirstName'
+        LastName:
+          type: string
+          description: LastName of the user
+          example: Benichou
+        Country:
+          type: string
+          description: Country
+          example: Israel
+        Email:
+          type: string
+          description: User's Email
+          example: lior121992@gmail.com
+        ProfilPic:
+          type: string
+          description: Picture's URL
+          example: url
+      description: User Object
+    RecipeId:
+      type: string
+      description: Recipe identifier
+      example: "123456"
+    RecipeReview:
+      type: object
+      properties:
+        Image:
+          type: string
+          description: Image URL
+          example: URL
+        Name:
+          type: string
+          description: Recipe name
+          example: Brownies
+        Duration:
+          type: integer
+          description: Duration of the recipe in minutes
+          example: 60
+        Popularity:
+          type: integer
+          description: Popularity of the recipe
+          example: 770
+        IsVegan:
+          type: boolean
+          description: Is the recipe vegan?
+          example: true
+        IsFreeGluten:
+          type: boolean
+          description: Is the recipe free Gluten?
+          example: true
+        IsUserClicked:
+          type: boolean
+          description: Does the user already visit the url?
+          example: true
+        IsUserFavorite:
+          type: boolean
+          description: Does the user add this page to his favorite?
+          example: true
+      description: Recipe object
+    ArrayOfRecipes:
+      type: object
+      properties:
+        randomRecipes:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeReview'
+      description: Array of recipes
+    RecipeAdvanced:
+      type: object
+      properties:
+        recipe ID:
+          $ref: '#/components/schemas/RecipeId'
+        ingredients:
+          type: string
+          example: Chocolate
+        instructions:
+          type: string
+          example: Turn on the oven to 180 c...
+        NumOfDishes:
+          type: integer
+          example: 3
+      description: Advanced data of the recipe.
+    FullRecipe:
+      properties:
+        RecipeReview:
+          $ref: '#/components/schemas/RecipeReview'
+        RecipeAdvanced:
+          $ref: '#/components/schemas/RecipeAdvanced'
+      description: the whole recipe data.
+    UserRecipe:
+      properties:
+        username:
+          $ref: '#/components/schemas/username'
+        FullRecipe:
+          $ref: '#/components/schemas/FullRecipe'
+      description: all recipe data + owner id.
